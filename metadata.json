@@ -1,0 +1,8 @@
+{
+  "name": "J.A.R.V.I.S.",
+  "description": "A single-page AI assistant prototype styled after Tony Stark's HUD, featuring voice recognition, text-to-speech, and clap activation.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

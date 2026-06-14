@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-sans: 'Inter', sans-serif;
+}
+
+body {
+  background-color: #050a15;
+  color: #00f0ff;
+  overflow: hidden;
+}
+
+/* Background Grid + Hexagons */
+.jarvis-grid {
+  background-color: #02050b;
+  background-image: 
+    linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+    radial-gradient(circle at center, rgba(0,240,255,0.05) 0%, transparent 60%);
+  background-size: 50px 50px, 50px 50px, 100vw 100vh;
+  background-position: center center;
+}
+
+.glow-text {
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.6), 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+.glow-arc {
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.5), inset 0 0 20px rgba(0, 240, 255, 0.5);
+  border-radius: 50%;
+}
+
+/* Futuristic Tech Panel using Clip Path */
+.tech-panel {
+  position: relative;
+  clip-path: polygon(
+    0 15px, 
+    15px 0, 
+    calc(100% - 15px) 0, 
+    100% 15px, 
+    100% calc(100% - 15px), 
+    calc(100% - 15px) 100%, 
+    15px 100%, 
+    0 calc(100% - 15px)
+  );
+  backdrop-filter: blur(8px);
+}
+
+.tech-panel::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  background: rgba(4, 10, 20, 0.7);
+  clip-path: polygon(
+    0 15px, 
+    15px 0, 
+    calc(100% - 15px) 0, 
+    100% 15px, 
+    100% calc(100% - 15px), 
+    calc(100% - 15px) 100%, 
+    15px 100%, 
+    0 calc(100% - 15px)
+  );
+  z-index: -1;
+}
+
+.tech-bracket {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-color: rgba(0, 240, 255, 0.8);
+}
+
+.bracket-tl { top: 0; left: 0; border-top: 2px solid; border-left: 2px solid; border-top-left-radius: 4px;}
+.bracket-tr { top: 0; right: 0; border-top: 2px solid; border-right: 2px solid; border-top-right-radius: 4px; }
+.bracket-bl { bottom: 0; left: 0; border-bottom: 2px solid; border-left: 2px solid; border-bottom-left-radius: 4px; }
+.bracket-br { bottom: 0; right: 0; border-bottom: 2px solid; border-right: 2px solid; border-bottom-right-radius: 4px; }
+
+/* Radar Sweep Component inside Arc */
+.radar-sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 70%, rgba(0, 240, 255, 0.3) 100%);
+  animation: spin-sweep 3s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes spin-sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.5; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.5; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-slow-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 3s infinite ease-in-out;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-spin-slow-reverse {
+  animation: spin-slow-reverse 15s linear infinite;
+}
+
+.scanline {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(0, 240, 255, 0.05) 51%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.5;
+}
+
+/* Glitch animation for text */
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(-1px, -1px); }
+  60% { transform: translate(2px, 1px); }
+  80% { transform: translate(1px, -1px); }
+  100% { transform: translate(0); }
+}
+
+.glitch-effect {
+  animation: glitch 3s infinite;
+  display: inline-block;
+}
