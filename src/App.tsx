@@ -37,6 +37,7 @@ export default function App() {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestFrameRef = useRef<number>(0);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
 
   // Speech Recognition Ref
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -45,12 +46,13 @@ export default function App() {
   const armSystem = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
       setSystemActive(true);
       startVisualizer(stream);
       setupSpeechRecognition();
       speakFeedback("System online. Good to see you, Sir.");
     } catch (err) {
-      console.error("Microphone access denied.", err);
+      console.warn("Microphone access denied or unavailable.");
       setSystemActive(true);
       setTranscript("MIC_ACCESS_DENIED // AWAITING_KEYBOARD_OVERRIDE");
       speakFeedback("System online. Acoustic sensors are impaired. Keyboard override is available.");
@@ -185,7 +187,11 @@ export default function App() {
     };
 
     recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
+      if (event.error === 'aborted') {
+        // 'aborted' is expected when stopping manually or when the browser interrupts it briefly.
+        return;
+      }
+      console.warn("Speech recognition error:", event.error);
     };
 
     recognition.onend = () => {
@@ -203,7 +209,7 @@ export default function App() {
     
     // Slight delay to ensure previous mic tasks are cleared
     setTimeout(() => {
-      try { recognitionRef.current?.start(); } catch (e) { console.error(e); }
+      try { recognitionRef.current?.start(); } catch (e) { console.warn(e); }
     }, 1000);
   };
 
@@ -255,9 +261,38 @@ export default function App() {
     }
   };
 
+  const shutdownSystem = () => {
+    setSystemActive(false);
+    setTranscript("AWAITING INPUT...");
+    setIsListening(false);
+    setJarvisData(null);
+    speakFeedback("Powering down, Sir.");
+    
+    // Cleanup active processors
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      audioContextRef.current.close().catch(() => {});
+    }
+    cancelAnimationFrame(requestFrameRef.current);
+    
+    // Stop any active streams
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach(track => track.stop());
+    }
+  };
+
   // 4. Query Processing
   const processQuery = async (query: string) => {
     if (!query || isProcessing) return;
+    
+    const lowerQuery = query.toLowerCase();
+    if (lowerQuery.includes("shut down") || lowerQuery.includes("shutdown") || lowerQuery.includes("power down") || lowerQuery === "exit") {
+      shutdownSystem();
+      return;
+    }
+    
     setIsProcessing(true);
     
     try {
@@ -289,7 +324,7 @@ export default function App() {
         }, 1500);
       }
     } catch (err: any) {
-      console.error("Failed to process query", err);
+      console.warn("Failed to process query", err);
       
       const isOffline = !navigator.onLine || err.message === "OFFLINE" || err.message === "API_UPLINK_SEVERED" || err.message.includes("Failed to fetch");
       
